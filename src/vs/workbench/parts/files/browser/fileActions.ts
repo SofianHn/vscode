@@ -749,7 +749,7 @@ export class BaseDeleteFileAction extends BaseFileAction {
 				// Allow to retry
 				let extraAction: Action;
 				if (this.useTrash) {
-					extraAction = new Action('permanentDelete', nls.localize('permDelete', "Delete Permanently"), null, true, () => { this.useTrash = this.skipConfirm = true; return this.run(); });
+					extraAction = new Action('permanentDelete', nls.localize('permDelete', "Delete Permanently"), null, true, () => { this.useTrash = false; this.skipConfirm = true; return this.run(); });
 				}
 
 				this.onErrorWithRetry(error, () => this.run(), extraAction);
@@ -2286,6 +2286,30 @@ export class FocusWorkingFiles extends Action {
 		return this.viewletService.openViewlet(Files.VIEWLET_ID, true).then((viewlet: ExplorerViewlet) => {
 			viewlet.getWorkingFilesView().expand();
 			viewlet.getWorkingFilesView().getViewer().DOMFocus();
+		});
+	}
+}
+
+export class FocusFilesExplorer extends Action {
+
+	public static ID = 'workbench.files.action.focusFilesExplorer';
+	public static LABEL = nls.localize('focusFilesExplorer', "Focus on Files Explorer");
+
+	constructor(
+		id: string,
+		label: string,
+		@IViewletService private viewletService: IViewletService
+	) {
+		super(id, label);
+	}
+
+	public run(): TPromise<any> {
+		return this.viewletService.openViewlet(Files.VIEWLET_ID, true).then((viewlet: ExplorerViewlet) => {
+			const view = viewlet.getExplorerView();
+			if (view) {
+				view.expand();
+				view.getViewer().DOMFocus();
+			}
 		});
 	}
 }
